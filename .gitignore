@@ -6,4 +6,8 @@ binary/dataset_8.json
 binary/wav
 binary/.idea
 binary/.idea/
+binary/model.h5
+binary/model.json
+binary/test.wav
+binary/__pycache__/
 

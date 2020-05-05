@@ -65,13 +65,11 @@ def predict(mod, path):
         curr += SEGMENT_LENGTH
 
     predictions = []
-    print(len(mfccs))
     for x in mfccs:
         x = np.array(x)
         x = x[np.newaxis, ...]
         x = np.expand_dims(x, axis=3)
         pred = np.argmax(mod.predict(x), axis=1)
-        print(pred)
         predictions.append(pred)
 
     return predictions
