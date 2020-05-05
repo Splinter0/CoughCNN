@@ -20,12 +20,12 @@ def model(input_shape):
     m.add(keras.layers.BatchNormalization())
 
     # 2nd conv layer
-    m.add(keras.layers.Conv2D(32, (3, 3), activation='relu'))
-    m.add(keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same'))
+    m.add(keras.layers.Conv2D(32, (2, 2), activation='relu'))
+    m.add(keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding='same'))
     m.add(keras.layers.BatchNormalization())
 
     # 3rd conv layer
-    m.add(keras.layers.Conv2D(32, (2, 2), activation='relu'))
+    m.add(keras.layers.Conv2D(32, (1, 1), activation='relu'))
     m.add(keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding='same'))
     m.add(keras.layers.BatchNormalization())
 
@@ -41,12 +41,14 @@ def model(input_shape):
 if __name__ == "__main__":
     x, y = load_data(DATA)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+    print(len(x_train),len(y_train))
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2)
 
     x_train = x_train[..., np.newaxis]
     x_test = x_test[..., np.newaxis]
     x_val = x_val[..., np.newaxis]
 
+    print(x_train.shape[1], x_train.shape[2], 1)
     m = model((x_train.shape[1], x_train.shape[2], 1))
     opt = keras.optimizers.Adam(learning_rate=0.0001)
 
