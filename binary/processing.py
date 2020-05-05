@@ -109,7 +109,8 @@ def process(folder, label):
             curr += SEGMENT_LENGTH
 
 if __name__ == "__main__":
-    FETCH = False
+    FETCH = True
+
     try:
         os.system("mkdir data >/dev/null 2>&1")
     except:
@@ -120,8 +121,7 @@ if __name__ == "__main__":
             os.system("mkdir data/"+label+" >/dev/null 2>&1")
         except:
             pass
-        if i == 0:
-            continue
+
         if FETCH:
             print("Processing label: "+label)
             with open(label+".txt", "r") as f:
