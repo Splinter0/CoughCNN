@@ -1,2 +1,8 @@
-dataset.json
-edited_wavs
+dry_wet/dataset.json
+dry_wet/edited_wavs
+binary/data/
+binary/dataset.json
+binary/wav
+binary/.idea
+binary/.idea/
+
