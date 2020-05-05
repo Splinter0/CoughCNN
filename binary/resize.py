@@ -6,9 +6,10 @@ from pydub import AudioSegment
 This is a helper script to chop up large audio files
 """
 
-MAX=10*60*1000
+MAX=2*60*1000
 FOLDER = "data/not/"
 SKIP = 6
+N_PER = 5
 
 for sample in tqdm(os.listdir(FOLDER)):
     n = os.path.splitext(sample)
@@ -16,12 +17,11 @@ for sample in tqdm(os.listdir(FOLDER)):
         continue
 
     signal = AudioSegment.from_wav(FOLDER+sample)
-    length = len(signal) // MAX
     curr = 0
-    for i in range(length):
+    for i in range(N_PER):
         if i+1 % SKIP == 0:
             continue
         signal[curr:curr+MAX].export(FOLDER+n[0]+str(i)+".wav", format="wav")
         curr += MAX
 
-    os.system("rm "+FOLDER+sample)
+    os.system("rm '"+FOLDER+sample+"'")

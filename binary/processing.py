@@ -5,6 +5,7 @@ import math
 import json
 import copy
 import youtube_dl
+from config import *
 from tqdm import tqdm
 from pydub import AudioSegment
 import librosa, librosa.display
@@ -24,17 +25,6 @@ Dataset from: https://www.karger.com/Article/FullText/504666
 """
 
 os.system("clear")
-
-DATA_FOLDER = "edited_wavs/"
-OUTPUT = "dataset.json"
-LABELS = ["cough", "not"]
-SR = 16000
-N_MFCC = 15
-N_FURIER = 2048
-HOP_LENGTH = 512
-SEGMENT_LENGTH = SR//4
-EXPECTED_MFCC = math.ceil(SEGMENT_LENGTH/HOP_LENGTH)
-THREADS = 5
 
 pbar = None
 queue = None
@@ -89,7 +79,11 @@ def single(link, out, silence):
 
 
 def process(folder, label):
-    for sample in tqdm(os.listdir(folder)):
+    items = os.listdir(folder)
+    if label == 1:
+        # To make sure we get same amount of data for both classes
+        each = len(data["labels"])//len(items)
+    for sample in tqdm(items):
         if os.path.splitext(sample)[-1] != ".wav":
             continue
         # Load the chunk into librosa
@@ -98,18 +92,22 @@ def process(folder, label):
         segments = len(signal) // SEGMENT_LENGTH
         curr = 0  # For segment indexing
         # print(sample, segments)
+        count = 0
         for segment in range(segments):
+            if label == 1 and count >= each:
+                break
             # Extract mfcc data
             mfcc = librosa.feature.mfcc(signal[curr:curr + SEGMENT_LENGTH], sr=SR, n_mfcc=N_MFCC, n_fft=N_FURIER,
                                         hop_length=HOP_LENGTH).T
             if len(mfcc) == EXPECTED_MFCC:
                 data["mfcc"].append(mfcc.tolist())
                 data["labels"].append(label)
+                count += 1
 
             curr += SEGMENT_LENGTH
 
 if __name__ == "__main__":
-    FETCH = True
+    FETCH = False
 
     try:
         os.system("mkdir data >/dev/null 2>&1")
