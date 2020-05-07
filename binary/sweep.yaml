@@ -1,0 +1,47 @@
+program: model.py
+method: random
+command:
+  - ${env}
+  - python3
+  - ${program}
+  - ${args}
+metric:
+  name: loss
+  goal: minimize
+parameters:
+  padding:
+    distribution: categorical
+    values:
+      - same
+  deep_one:
+    distribution: int_uniform
+    min: 128
+    max: 512
+  deep_two:
+    distribution: int_uniform
+    min: 32
+    max: 128
+  drop_one:
+    distribution: uniform
+    min: 0.15
+    max: 0.6
+  drop_two:
+    distribution: uniform
+    min: 0.15
+    max: 0.6
+  activation:
+    distribution: categorical
+    values:
+      - relu
+  channel_one:
+    distribution: int_uniform
+    min: 16
+    max: 64
+  channel_two:
+    distribution: int_uniform
+    min: 16
+    max: 64
+  channel_three:
+    distribution: int_uniform
+    min: 16
+    max: 64

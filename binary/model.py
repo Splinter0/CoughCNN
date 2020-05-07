@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import json
 import datetime
@@ -20,30 +22,55 @@ def load_data(path):
 
     return np.array(data["mfcc"]), np.array(data["labels"])
 
+hyper = dict(
+    channel_one = 60,
+    kernel_one = (3, 3),
+    activation = 'relu',
+    pool_one = (3, 3),
+    strides_one = (2, 2),
+    padding = 'same',
+
+    channel_two = 16,
+    kernel_two = (2, 2),
+    pool_two = (2, 2),
+    strides_two = (2, 2),
+
+    channel_three = 28,
+    kernel_three = (2, 2),
+    pool_three = (2, 2),
+    strides_three = (2, 2),
+
+    deep_one = 497,
+    drop_one = 0.5998,
+    deep_two = 80,
+    drop_two = 0.3656
+)
+
+import wandb
+from wandb.keras import WandbCallback
+wandb.init(config=hyper, project="CoughDetection", name="MainModel")
+
 def model(input_shape):
     m = keras.Sequential()
 
     # 1st conv layer
-    m.add(keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
-    m.add(keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same'))
+    m.add(keras.layers.Conv2D(hyper["channel_one"], hyper["kernel_one"], activation=hyper["activation"], input_shape=input_shape))
+    m.add(keras.layers.MaxPooling2D(hyper["pool_one"], strides=hyper["strides_one"], padding='same'))
     m.add(keras.layers.BatchNormalization())
 
-    # 2nd conv layer
-    m.add(keras.layers.Conv2D(32, (2, 2), activation='relu'))
-    m.add(keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding='same'))
+    m.add(keras.layers.Conv2D(hyper["channel_two"], hyper["kernel_two"], activation=hyper["activation"]))
+    m.add(keras.layers.MaxPooling2D(hyper["pool_two"], strides=hyper["strides_two"], padding='same'))
     m.add(keras.layers.BatchNormalization())
 
-    # 3rd conv layer
-    m.add(keras.layers.Conv2D(32, (2, 2), activation='relu'))
-    m.add(keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding='same'))
+    m.add(keras.layers.Conv2D(hyper["channel_three"], hyper["kernel_three"], activation=hyper["activation"]))
+    m.add(keras.layers.MaxPooling2D(hyper["pool_three"], strides=hyper["strides_three"], padding='same'))
     m.add(keras.layers.BatchNormalization())
-
 
     m.add(keras.layers.Flatten())
-    m.add(keras.layers.Dense(256, activation='relu'))
-    m.add(keras.layers.Dropout(0.3))
-    m.add(keras.layers.Dense(64, activation='relu'))
-    m.add(keras.layers.Dropout(0.3))
+    m.add(keras.layers.Dense(hyper["deep_one"], activation='relu'))
+    m.add(keras.layers.Dropout(hyper["drop_one"]))
+    m.add(keras.layers.Dense(hyper["deep_two"], activation='relu'))
+    m.add(keras.layers.Dropout(hyper["drop_two"]))
 
     m.add(keras.layers.Dense(2, activation='softmax'))
 
@@ -112,7 +139,7 @@ if __name__ == "__main__":
         callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
         m.summary()
-        m.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=32, epochs=100, callbacks=[callback])
+        m.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=32, epochs=120, callbacks=[WandbCallback()])
 
         test_err, test_acc = m.evaluate(x_test, y_test, verbose=1)
         print("Accuracy on testing data", test_acc)
@@ -132,6 +159,8 @@ if __name__ == "__main__":
         loaded_model.load_weights("model.h5")
         print("Loaded model from disk")
 
+        t = predict(loaded_model, "test2.wav")
+        ppp(t)
         t = predict(loaded_model, "test.wav")
         ppp(t)
 

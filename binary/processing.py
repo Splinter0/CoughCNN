@@ -5,6 +5,7 @@ import math
 import json
 import copy
 import youtube_dl
+import  numpy as np
 from config import *
 from tqdm import tqdm
 from pydub import AudioSegment
@@ -83,6 +84,7 @@ def process(folder, label):
     if label == 1:
         # To make sure we get same amount of data for both classes
         each = len(data["labels"])//len(items)
+        print(each)
     for sample in tqdm(items):
         if os.path.splitext(sample)[-1] != ".wav":
             continue
@@ -94,17 +96,34 @@ def process(folder, label):
         # print(sample, segments)
         count = 0
         for segment in range(segments):
+            pieces = [signal[curr:curr + SEGMENT_LENGTH]]
             if label == 1 and count >= each:
                 break
+            elif label == 0:
+                #pieces += augment(signal[curr:curr + SEGMENT_LENGTH])
+                pass
+
             # Extract mfcc data
-            mfcc = librosa.feature.mfcc(signal[curr:curr + SEGMENT_LENGTH], sr=SR, n_mfcc=N_MFCC, n_fft=N_FURIER,
-                                        hop_length=HOP_LENGTH).T
-            if len(mfcc) == EXPECTED_MFCC:
-                data["mfcc"].append(mfcc.tolist())
-                data["labels"].append(label)
-                count += 1
+            for p in pieces:
+                mfcc = librosa.feature.mfcc(p, sr=SR, n_mfcc=N_MFCC, n_fft=N_FURIER,
+                                            hop_length=HOP_LENGTH).T
+                if len(mfcc) == EXPECTED_MFCC:
+                    data["mfcc"].append(mfcc.tolist())
+                    data["labels"].append(label)
+                    count += 1
 
             curr += SEGMENT_LENGTH
+
+def augment(signal):
+    different = []
+    # Add white noise
+    noise = np.random.randn(len(signal))
+    different.append(signal + 0.0025*noise)
+    # Shift sound
+    different.append(np.roll(signal, SR))
+
+    return different
+
 
 if __name__ == "__main__":
     FETCH = False
