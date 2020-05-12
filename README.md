@@ -8,6 +8,10 @@ A new approach using MFCC data and a CNN to classify dry/wet cough from audio
 - `resize.py` contains functions to make the downloaded dataset smaller, some of the videos are huge and take too much memory.
 - `detector.py` uses the model to classify an audio file
 
-## WanDB
+### WanDB
 
 Used WanDB for hyperparameters optimization, the whole project is here : https://app.wandb.ai/mastersplinter/CoughDetection-hyper
+
+## Log Mel Spectrogram Approach
+- Data processing notebook 
+- Hyper parameter optimization using some data from webapp dataset under "real_acc" : https://app.wandb.ai/mastersplinter/MelSpect-CoughDetect
