@@ -19,15 +19,15 @@ def load_data(f, s=False):
     x = np.array([x for x in data[0]])
     y = np.array([to_categorical(y, num_classes=2) for y in data[1]])
 
-    if s:
-        return x, y
-
     shape = (x.shape[1], x.shape[2], x.shape[3])
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
-    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.25)
+    if s:
+        return x, y, shape
 
-    return x_train, y_train, x_test, y_test, x_val, y_val, shape
+    #x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.25)
+
+    return x_train, y_train, x_val, y_val, shape
 
 class ExtraCallBack(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
@@ -111,8 +111,8 @@ if __name__ == '__main__':
     should_train = True
 
     if should_train:
-        x_train, y_train, x_test, y_test, x_val, y_val, shape = load_data(DATASET)
-        x_extra, y_extra = load_data("test/test.npy", s=True)
+        x_train, y_train, x_val, y_val, shape = load_data(DATASET)
+        x_extra, y_extra, _ = load_data("test/test.npy", s=True)
 
         config = dict(
             conv1 = 32,
@@ -126,15 +126,15 @@ if __name__ == '__main__':
             deep1 = 128,
             drop1 = 0.6,
 
-            deep2 = 64,
+            deep2 = 128,
             drop2 = 0.6,
 
-            batch_size = 32,
-            epochs = 32,
+            batch_size = 21,
+            epochs = 50,
             lr = 0.00001
         )
 
-        model = Model("Spectro1", config, hyper=True, hyper_project="MelSpect-CoughDetect", extra=(x_extra, y_extra))
+        model = Model("Spectro1", config, hyper=True, hyper_project="MelSpect-CoughDetect-new", extra=(x_extra, y_extra))
         model.build(shape)
         model.train(x_train, y_train, (x_val, y_val))
         model.save()

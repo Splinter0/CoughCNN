@@ -9,19 +9,7 @@ metric:
   name: loss
   goal: minimize
 parameters:
-  drop1:
-    distribution: uniform
-    min: 0.15
-    max: 0.7
-  drop1:
-    distribution: uniform
-    min: 0.15
-    max: 0.7
   lr:
     distribution: uniform
     min: 0.000001
     max: 0.1
-  batch_size:
-    distribution: int_uniform
-    min: 10
-    max: 64
