@@ -5,9 +5,10 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 from wandb.keras import WandbCallback
-from sklearn.model_selection import train_test_split
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Flatten, Dense, Dropout
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Flatten, Dense, Dropout, LeakyReLU, SpatialDropout2D, GlobalAveragePooling2D
 
 
 DATASET = "dataset.npy"
@@ -15,11 +16,19 @@ global model
 
 def load_data(f, s=False):
     data = np.load(f, allow_pickle=True)
+    x = []
+    y = []
 
-    x = np.array([x for x in data[0]])
-    y = np.array([to_categorical(y, num_classes=2) for y in data[1]])
+    for sample in data:
+        x.append(sample[0])
+        y.append(to_categorical(sample[1], num_classes=2))
 
-    shape = (x.shape[1], x.shape[2], x.shape[3])
+    x = np.array(x)
+    y = np.array(y)
+
+    shape = (x.shape[1], x.shape[2], 1)
+
+    x = x.reshape(x.shape[0], shape[0], shape[1], shape[2])
 
     if s:
         return x, y, shape
@@ -56,25 +65,38 @@ class Model(object):
 
     def build(self, input_shape):
         self.model = keras.Sequential([
-            Conv2D(self.config["conv1"], self.config["kernel1"], activation='relu', input_shape=input_shape),
+            Conv2D(self.config["conv1"], self.config["kernel1"], kernel_regularizer=l2(self.config["l2_rate"]), input_shape=input_shape),
+            LeakyReLU(alpha=self.config["alpha"]),
+            BatchNormalization(),
+
+            SpatialDropout2D(self.config["drop1"]),
+            Conv2D(self.config["conv2"], self.config["kernel2"], kernel_regularizer=l2(self.config["l2_rate"])),
+            LeakyReLU(alpha=self.config["alpha"]),
+            BatchNormalization(),
+
             MaxPooling2D(self.config["pool1"], padding='same'),
+
+            SpatialDropout2D(self.config["drop1"]),
+            Conv2D(self.config["conv3"], self.config["kernel3"], kernel_regularizer=l2(self.config["l2_rate"])),
+            LeakyReLU(alpha=self.config["alpha"]),
             BatchNormalization(),
 
-            Conv2D(self.config["conv2"], self.config["kernel2"], activation='relu'),
-            MaxPooling2D(self.config["pool2"], padding='same'),
+            SpatialDropout2D(self.config["drop2"]),
+            Conv2D(self.config["conv4"], self.config["kernel4"], kernel_regularizer=l2(self.config["l2_rate"])),
+            LeakyReLU(alpha=self.config["alpha"]),
             BatchNormalization(),
 
-            Flatten(),
-            Dense(self.config["deep1"], activation='relu'),
-            Dropout(self.config["drop1"]),
-            Dense(self.config["deep2"], activation='relu'),
-            Dropout(self.config["drop2"]),
+            GlobalAveragePooling2D(),
 
             Dense(2, activation='softmax')
         ])
 
     def train(self, x_train, y_train, validation):
-        self.optimizer = keras.optimizers.Adam(learning_rate=self.config["lr"])
+        self.optimizer = keras.optimizers.Adam(
+            learning_rate=self.config["lr"],
+            beta_1=self.config["beta_1"],
+            beta_2=self.config["beta_2"]
+        )
         self.model.compile(
             optimizer=self.optimizer,
             loss="categorical_crossentropy",
@@ -112,29 +134,38 @@ if __name__ == '__main__':
 
     if should_train:
         x_train, y_train, x_val, y_val, shape = load_data(DATASET)
-        x_extra, y_extra, _ = load_data("test/test.npy", s=True)
+        x_extra, y_extra, _ = load_data("test.npy", s=True)
 
         config = dict(
             conv1 = 32,
-            kernel1 = (5,5),
-            pool1 = (4,4),
+            kernel1 = (3,3),
+            drop1 = 0.07,
 
-            conv2 = 128,
-            kernel2 = (5,5),
-            pool2 = (2,2),
+            conv2 = 32,
+            kernel2 = (3,3),
 
-            deep1 = 128,
-            drop1 = 0.6,
+            pool1 = (2,2),
 
-            deep2 = 128,
-            drop2 = 0.6,
+            conv3 = 64,
+            kernel3 = (3,3),
 
-            batch_size = 21,
+            drop2 = 0.14,
+
+            conv4 = 64,
+            kernel4 = (3,3),
+
+            batch_size = 128,
             epochs = 50,
-            lr = 0.00001
+
+            lr = 1e-4,
+            beta_1 = 0.99,
+            beta_2 = 0.999,
+            l2_rate = 0.001,
+
+            alpha = 0.1
         )
 
-        model = Model("Spectro1", config, hyper=True, hyper_project="MelSpect-CoughDetect-new", extra=(x_extra, y_extra))
+        model = Model("Spectro2", config, hyper=True, hyper_project="CoughDetect", extra=(x_extra, y_extra))
         model.build(shape)
         model.train(x_train, y_train, (x_val, y_val))
         model.save()
