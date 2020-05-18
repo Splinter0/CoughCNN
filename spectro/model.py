@@ -56,7 +56,12 @@ class Model(object):
 
         if hyper:
             wandb.init(config=config, project=hyper_project)
+            wandb.run.save()
             self.callback = WandbCallback(data_type="image", validation_data=extra)
+            try:
+                os.system("mkdir sweep/"+wandb.run.name)
+            except:
+                pass
         else:
             log_dir = "logs/fit/"+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             self.callback = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
@@ -122,11 +127,12 @@ class Model(object):
             print("Accuracy on testing data: "+str(test_acc))
 
     def save(self):
-        with open("model.json", "w") as json_file:
+        folder = "sweep/"+wandb.run.name
+        with open(folder+"model.json", "w") as json_file:
             json_file.write(self.model.to_json())
 
-        self.model.save_weights("model.h5")
-        print("Saved model '"+self.name+"' to disk")
+        self.model.save_weights(folder+"model.h5")
+        print("Saved model '"+self.name+"-"+wandb.run.name+"' to disk")
 
 
 if __name__ == '__main__':
