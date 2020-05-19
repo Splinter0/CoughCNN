@@ -21,7 +21,7 @@ All the data of the project can be found at : https://drive.google.com/drive/fol
 Right now we have normalized the data and we use a new model structure using GlobalAveragePooling2D which gave a huge performance
 boost to the previous version. We went from 68-75% to 80-84% accuracy on our test set created from the webapp.
 Right now we are running hyperparameters optimization and you can check out everything at:
-https://app.wandb.ai/mastersplinter/CoughDetect
+https://app.wandb.ai/mastersplinter/CoughDetect/sweeps/phdtst8z
 
 ### Next
 
