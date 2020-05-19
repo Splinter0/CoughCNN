@@ -127,11 +127,19 @@ class Model(object):
             print("Accuracy on testing data: "+str(test_acc))
 
     def save(self):
+<<<<<<< HEAD
+        folder = "sweep/"+wandb.run.name+"/"
+        with open(folder+".json", "w") as json_file:
+            json_file.write(self.model.to_json())
+
+        self.model.save_weights(folder+".h5")
+=======
         folder = "sweep/"+wandb.run.name
         with open(folder+"model.json", "w") as json_file:
             json_file.write(self.model.to_json())
 
         self.model.save_weights(folder+"model.h5")
+>>>>>>> 77363a56e8db312c0908491f05e150deb2faf970
         print("Saved model '"+self.name+"-"+wandb.run.name+"' to disk")
 
 
