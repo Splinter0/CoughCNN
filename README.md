@@ -26,3 +26,13 @@ https://app.wandb.ai/mastersplinter/CoughDetect/sweeps/phdtst8z
 ### Next
 
 - Data processing hyperparameters
+- Testing different sample length and optimize them
+
+### Resources that inspired this:
+
+- https://arxiv.org/pdf/2004.01275.pdf (for initial model architecture)
+- https://www.mi.t.u-tokyo.ac.jp/assets/publication/LEARNING_ENVIRONMENTAL_SOUNDS_WITH_END-TO-END_CONVOLUTIONAL_NEURAL_NETWORK.pdf
+- https://www.cs.tut.fi/~tuomasv/papers/ijcnn_paper_valenti_extended.pdf
+- https://adventuresinmachinelearning.com/global-average-pooling-convolutional-neural-networks/
+- https://arxiv.org/pdf/1809.04437.pdf
+- https://arxiv.org/pdf/1711.10282.pdf
