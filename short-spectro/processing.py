@@ -10,9 +10,9 @@ from speechpy.processing import cmvn
 SR = 44000
 N_FFT = 2048
 HOP_LENGTH = 512
-N_MELS = 60
+N_MELS = 64
 SILENCE = 0.0018
-SAMPLE_LENGTH = 0.5 #s
+SAMPLE_LENGTH = 32/86 #s
 SAMPLE_SIZE = int(np.ceil(SR*SAMPLE_LENGTH))
 NOISE_RATIO = 0.25
 

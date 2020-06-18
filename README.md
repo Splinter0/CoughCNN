@@ -1,5 +1,31 @@
 # CoughCNN
 
+## Covid Anomaly detection model
+
+Due to the lack of enough covid cough samples, and of the precise features in those coughs which classify it as covid;
+we cannot use a simple supervised learning approach. Instead the approach taken currently is an unsupervised (which will
+turn to semisupervised later using the avaiable data to refine the model) using an autoencoder. The autoencoder takes all
+the non-covid cough samples which have been detected by the model in `spectro` and uses them as a training dataset, the autoencoder
+learns the representation of a "normal" cough and how to recreate it (boils down the sample using convolutions and then re-builds
+the sample using a transposition of the convolution). When a cough that was not similar to the ones which were in the dataset 
+(which with enough data should be singled out to the covid coughs) the error which the model will make at recreating the sample
+provided (calculate useing MSE of the original image with the one created by the model) will be high and the sample will be
+labeled as an anomaly.
+
+### Current
+
+Under the folder `covid` there are two files:
+**model.py**, contains the code for the autoencoder and the MSE applied to the melspectrogram, this still does not work unfortunately
+I'm tweaking the input shape of the samples by increasing the sample length and the number of mels per sample but I'm still getting
+problems. 
+**processing.ipynb** contains the data processing to create the dataset used
+
+**short-spectro** is a clone folder of `spectro` but contains the scripts to make the data suitable for the anomaly detection model,
+once a stable solution for the anomaly detection will be finished all the samples will be in the same format and usable in any model. 
+As of now I'll be keeping both separate.
+
+Here is all the data processed by the short-spectro: https://drive.google.com/file/d/1aAMGHTFJjiv7K6DrN_1DptcCeA3Efmbk/view?usp=sharing
+
 ## Log Melspectrogram
 
 Under the folder `spectro` you can find the whole approach using the melspectrograms to train a Convolutional Neural Network

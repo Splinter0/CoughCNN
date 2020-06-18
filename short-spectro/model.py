@@ -176,7 +176,7 @@ if __name__ == '__main__':
             kernel4 = (3,3),
 
             batch_size = 128,
-            epochs = 70,
+            epochs = 40,
 
             lr = 1e-4,
             beta_1 = 0.99,
@@ -186,7 +186,7 @@ if __name__ == '__main__':
             alpha = 0.1
         )
 
-        model = Model("Spectro2", config, hyper=True, hyper_project="CoughDetectTests", extra=(x_extra, y_extra))
+        model = Model("Spectro3", config, hyper=True, hyper_project="WOW", extra=(x_extra, y_extra))
         model.build(shape)
         model.train(x_train, y_train, (x_val, y_val))
         model.save()
